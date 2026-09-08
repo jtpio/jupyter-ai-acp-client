@@ -25,16 +25,17 @@ export const toolCallComponentsPlugin: JupyterFrontEndPlugin<void> = {
     app: JupyterFrontEnd,
     componentsRendererFactory: IComponentsRendererFactory
   ) => {
-    componentsRendererFactory.toolCallPermissionDecision =
-      submitPermissionDecision;
-    componentsRendererFactory.openToolCallPath = (path: string) => {
-      const openPath = getOpenableToolCallPath(path);
+    componentsRendererFactory.groupedToolCallCallbacks = {
+      toolCallPermissionDecision: submitPermissionDecision,
+      openToolCallPath: (path: string) => {
+        const openPath = getOpenableToolCallPath(path);
 
-      if (!openPath) {
-        return;
+        if (!openPath) {
+          return;
+        }
+
+        void app.commands.execute('docmanager:open', { path: openPath });
       }
-
-      void app.commands.execute('docmanager:open', { path: openPath });
     };
   }
 };
