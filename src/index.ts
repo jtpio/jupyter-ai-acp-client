@@ -6,7 +6,6 @@ import {
 import { IComponentsRendererFactory } from 'jupyter-chat-components';
 
 import { submitPermissionDecision } from './request';
-import { getOpenableToolCallPath } from './tool-call-paths';
 
 const TOOL_CALL_COMPONENTS_PLUGIN_ID =
   '@jupyter-ai/acp-client:tool-call-components';
@@ -28,13 +27,17 @@ export const toolCallComponentsPlugin: JupyterFrontEndPlugin<void> = {
     componentsRendererFactory.groupedToolCallCallbacks = {
       toolCallPermissionDecision: submitPermissionDecision,
       openToolCallPath: (path: string) => {
-        const openPath = getOpenableToolCallPath(path);
-
-        if (!openPath) {
+        // The component sends a server-relative path. A leading '/' means
+        // the file is outside the server root and cannot be opened.
+        if (path.startsWith('/')) {
           return;
         }
 
-        void app.commands.execute('docmanager:open', { path: openPath });
+        app.commands
+          .execute('docmanager:open', { path })
+          .catch((error: unknown) => {
+            console.error(`Failed to open tool call path: ${path}`, error);
+          });
       }
     };
   }

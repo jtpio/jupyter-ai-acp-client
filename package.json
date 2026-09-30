@@ -56,8 +56,6 @@
         "watch:labextension": "jupyter labextension watch ."
     },
     "dependencies": {
-        "@jupyter/chat": "^0.23.0-alpha.4",
-        "@jupyter/ydoc": "*",
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/coreutils": "^6.0.0",
         "@jupyterlab/services": "^7.0.0",
@@ -116,10 +114,6 @@
         "extension": true,
         "outputDir": "jupyter_ai_acp_client/labextension",
         "sharedPackages": {
-            "@jupyter/chat": {
-                "bundled": false,
-                "singleton": true
-            },
             "jupyter-chat-components": {
                 "bundled": false,
                 "singleton": true

@@ -21,11 +21,14 @@ def make_persona(message_id_seq: list[str] | str | None = None) -> MagicMock:
         persona.chat.add_message.return_value = message_id_seq
     else:
         persona.chat.add_message.side_effect = list(message_id_seq)
-    message = MagicMock()
-    message.metadata = None
-    message.mime_model = None
-    persona.chat.get_message.return_value = message
+    persona.chat.get_message.return_value = MagicMock()
     return persona
+
+
+def flushed_tool_calls(persona: MagicMock) -> list[dict]:
+    """Return the tool call entries of the last flushed message."""
+    flushed_msg = persona.chat.update_message.call_args[0][0]
+    return flushed_msg.mime_model.metadata[CHAT_COMPONENTS_MIME_TYPE]["toolCalls"]
 
 
 def make_tool_call_start(
@@ -232,8 +235,7 @@ class TestHandleStart:
         assert session.tool_call_message_ids["tc-2"] == "msg-1"
 
         # Verify grouped metadata contains both tool calls in order
-        flushed_msg = persona.chat.update_message.call_args[0][0]
-        tc_ids = [tc["tool_call_id"] for tc in flushed_msg.metadata["tool_calls"]]
+        tc_ids = [tc["toolCallId"] for tc in flushed_tool_calls(persona)]
         assert tc_ids == ["tc-1", "tc-2"]
 
     def test_flushes_to_message_after_state_update(self):
@@ -245,9 +247,9 @@ class TestHandleStart:
 
         persona.chat.update_message.assert_called_once()
         # Verify the metadata contains only this tool call
-        flushed_msg = persona.chat.update_message.call_args[0][0]
-        assert len(flushed_msg.metadata["tool_calls"]) == 1
-        assert flushed_msg.metadata["tool_calls"][0]["tool_call_id"] == "tc-1"
+        tool_calls = flushed_tool_calls(persona)
+        assert len(tool_calls) == 1
+        assert tool_calls[0]["toolCallId"] == "tc-1"
 
     def test_locations_extracted_from_update(self):
         mgr = ToolCallManager()
@@ -486,16 +488,13 @@ class TestFlushToolCall:
 
         persona.chat.update_message.assert_called_once()
         flushed_msg = persona.chat.update_message.call_args[0][0]
-        assert len(flushed_msg.metadata["tool_calls"]) == 1
-        assert flushed_msg.metadata["tool_calls"][0]["tool_call_id"] == "tc-1"
         assert flushed_msg.mime_model.data == {
             CHAT_COMPONENTS_MIME_TYPE: GROUPED_TOOL_CALLS_COMPONENT
         }
-        component_metadata = flushed_msg.mime_model.metadata[
-            CHAT_COMPONENTS_MIME_TYPE
-        ]
-        assert component_metadata["toolCalls"][0]["toolCallId"] == "tc-1"
-        assert component_metadata["toolCalls"][0]["title"] == "Reading"
+        tool_calls = flushed_tool_calls(persona)
+        assert len(tool_calls) == 1
+        assert tool_calls[0]["toolCallId"] == "tc-1"
+        assert tool_calls[0]["title"] == "Reading"
 
     def test_noop_when_session_missing(self):
         mgr = ToolCallManager()

@@ -82,7 +82,7 @@ Currently, this package provides 8 personas:
 
 - JupyterLab >= 4.0.0
 - `jupyter-ai-persona-manager>=0.0.5`
-- `jupyter-chat-components>=0.4.0`
+- `jupyter-chat-components>=0.6.0`
 - `agent_client_protocol`
 
 **Optional**
