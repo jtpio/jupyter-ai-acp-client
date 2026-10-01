@@ -73,7 +73,7 @@ class TestGroupedToolCallsMetadata:
                     ],
                     "permissionStatus": "resolved",
                     "selectedOptionId": "allow-once",
-                    "sessionId": "session-1",
+                    "targetId": "session-1",
                     "diffs": [
                         {
                             "path": "/tmp/file.py",

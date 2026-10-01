@@ -24,7 +24,7 @@ export const toolCallComponentsPlugin: JupyterFrontEndPlugin<void> = {
     app: JupyterFrontEnd,
     componentsRendererFactory: IComponentsRendererFactory
   ) => {
-    componentsRendererFactory.groupedToolCallCallbacks = {
+    componentsRendererFactory.addCallbacks({
       toolCallPermissionDecision: submitPermissionDecision,
       openToolCallPath: (path: string) => {
         // The component sends a server-relative path. A leading '/' means
@@ -39,7 +39,7 @@ export const toolCallComponentsPlugin: JupyterFrontEndPlugin<void> = {
             console.error(`Failed to open tool call path: ${path}`, error);
           });
       }
-    };
+    });
   }
 };
 

@@ -94,7 +94,7 @@ def build_grouped_tool_calls_metadata(
         "locations": "locations",
         "permission_status": "permissionStatus",
         "selected_option_id": "selectedOptionId",
-        "session_id": "sessionId",
+        "session_id": "targetId",
     }
 
     entries: list[dict[str, Any]] = []
